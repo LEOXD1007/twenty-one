@@ -1,0 +1,26 @@
+node_modules/
+.DS_Store
+*.log
+
+# Generated native build output
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/.idea/
+*.iml
+
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+ios/App/App.xcworkspace/xcuserdata/
+ios/**/xcuserdata/
+*.xcuserstate
+
+# Source uploads from the original handoff (copied into web/)
+uploads/
+agent-tools/
+
+# Capacitor
+.capacitor/

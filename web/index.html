@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Twenty-One</title>
+<meta name="description" content="Twenty-one days. Twenty-one stars.">
+<meta name="theme-color" content="#06070b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Twenty-One">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<canvas id="dust" aria-hidden="true"></canvas>
+<div id="flood"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div id="app">
+  <div class="top">
+    <div class="brand">廿一</div>
+    <button class="iconbtn" id="toHistory" data-i18n-aria="ariaHistory" aria-label="Star map">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M4 17 9 8l6 5 5-8" opacity=".55"/><circle cx="4" cy="17" r="1.6" fill="currentColor"/><circle cx="9" cy="8" r="1.6" fill="currentColor"/><circle cx="15" cy="13" r="1.6" fill="currentColor"/><circle cx="20" cy="5" r="1.6" fill="currentColor"/></svg>
+    </button>
+  </div>
+
+  <section class="view setup" id="vSetup">
+    <div class="hero">廿<span>一</span></div>
+    <div class="tag" id="setupTag"></div>
+    <div class="rules" id="setupRules"></div>
+    <div class="timebox">
+      <label for="timeIn" data-i18n="timeLabel">Daily check-in time</label>
+      <input type="time" id="timeIn" value="22:00" step="60">
+    </div>
+    <div class="wnote num" id="wnote"></div>
+    <button class="primary" id="startBtn"></button>
+  </section>
+
+  <section class="view" id="vHome">
+    <div class="meta"><div class="k" id="attemptK"></div><div class="v num" id="litV"></div></div>
+    <div class="sky" id="sky">
+      <svg class="cons" id="cons" viewBox="0 0 360 360" aria-hidden="true"></svg>
+      <button class="orb" id="orb" data-i18n-aria="ariaHold" aria-label="Press and hold to check in">
+        <svg class="hold" viewBox="0 0 100 100"><circle id="holdRing" cx="50" cy="50" r="48" stroke-dasharray="301.6" stroke-dashoffset="301.6" opacity="0"/></svg>
+        <div class="d num" id="orbD">1</div>
+        <div class="h" id="orbH"></div>
+      </button>
+    </div>
+    <div class="status"><div class="a num" id="stA"></div><div class="b num" id="stB"></div></div>
+    <div class="spacer"></div>
+    <button class="ghost" id="breakBtn" data-i18n="breakBtn">I broke my streak</button>
+  </section>
+
+  <section class="view broken" id="vBroken">
+    <svg class="mini" id="brokenSvg" viewBox="0 0 360 360"></svg>
+    <h2 data-i18n="skyDark">The sky went dark</h2>
+    <p id="brokenP"></p>
+    <button class="primary" id="restartBtn" data-i18n="restart">Start again</button>
+    <button class="secondary" id="retimeBtn" data-i18n="retime">Change check-in time</button>
+  </section>
+</div>
+
+<div class="sheet" id="vHistory" aria-hidden="true">
+  <div class="top"><div class="brand" data-i18n="historyTitle">Star map</div>
+    <button class="iconbtn" id="closeHistory" data-i18n-aria="ariaClose" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="stats num" id="stats"></div>
+  <h3 data-i18n="doneTitle">Finished constellations</h3>
+  <div id="cards"></div>
+  <h3 data-i18n="breakTitle">Interrupted cycles</h3>
+  <div class="blist num" id="blist"></div>
+  <h3 data-i18n="settings">Settings</h3>
+  <div class="row"><div><span data-i18n="notifyTitle">Window reminder</span><small id="notifyNote"></small></div><button class="switch" id="notifySw" data-i18n-aria="ariaNotify" aria-label="Window reminder"></button></div>
+  <div class="row"><div><span data-i18n="timeTitle">Check-in time</span><small id="timeNote"></small></div></div>
+  <div class="row"><div><span data-i18n="backupTitle">Backup</span><small data-i18n="backupNote">Records stay on this device.</small></div><div><button class="linkbtn" id="exportBtn" data-i18n="export">Export</button>　<button class="linkbtn" id="importBtn" data-i18n="import">Import</button></div></div>
+  <input type="file" id="importIn" accept="application/json,.json" hidden>
+  <div class="row" id="proRow"><div><span id="proTitle">Twenty-One Pro</span><small id="proNote"></small></div><div id="proActions"></div></div>
+  <div class="row"><div><span data-i18n="privacyTitle">Privacy</span><small data-i18n="privacyNote">Check-ins stay on this device. No account, no analytics, no tracking.</small></div></div>
+  <div class="foot" data-i18n-html="foot"></div>
+</div>
+
+<div class="modal" id="confirm"><div class="dlg">
+  <h4 data-i18n="confirmTitle">End this streak?</h4>
+  <p id="confirmP"></p>
+  <button class="danger" id="confirmYes" data-i18n="confirmYes">Yes, start over</button>
+  <button class="cancel" id="confirmNo" data-i18n="confirmNo">Not yet</button>
+</div></div>
+
+<div class="modal" id="importDlg"><div class="dlg">
+  <h4 data-i18n="importTitle">Import backup</h4>
+  <p id="importP"></p>
+  <button class="danger" id="importYes" data-i18n="importYes">Replace and import</button>
+  <button class="cancel" id="importNo" data-i18n="importNo">Cancel</button>
+</div></div>
+
+<div id="finale"></div>
+<div id="toast"></div>
+
+<script src="js/env.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/pro-config.js"></script>
+<script src="js/native.js"></script>
+<script src="js/pro.bundle.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

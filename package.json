@@ -1,0 +1,38 @@
+{
+  "name": "twenty-one",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Twenty-One — a 21-day self-discipline check-in. Native iOS and Android shell around the night-sky web app.",
+  "scripts": {
+    "bundle:pro": "esbuild web/js/pro-entry.js --bundle --format=iife --platform=browser --target=es2020 --outfile=web/js/pro.bundle.js --legal-comments=none",
+    "build": "npm run bundle:pro && node scripts/build-www.mjs",
+    "dev": "node scripts/serve.mjs web 47221",
+    "start": "npm run dev",
+    "serve:prod": "npm run build && node scripts/serve.mjs www 47222",
+    "sync": "npm run build && npx cap sync",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "android:debug": "npm run sync && cd android && ./gradlew assembleDebug",
+    "assets": "npx capacitor-assets generate --ios --android --iconBackgroundColor '#06070b' --iconBackgroundColorDark '#06070b' --splashBackgroundColor '#06070b' --splashBackgroundColorDark '#06070b'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/local-notifications": "^8.0.0",
+    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
+    "capacitor-plugin-cdv-purchase": "^13.20.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.6.0",
+    "esbuild": "^0.25.0",
+    "puppeteer-core": "^24.15.0",
+    "sharp": "^0.34.3"
+  }
+}

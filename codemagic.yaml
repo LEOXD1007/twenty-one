@@ -1,0 +1,63 @@
+# Codemagic builds the iOS app on a Mac and uploads it to TestFlight.
+# Connect the App Store Connect API key in the Codemagic UI first and name
+# the integration twenty-one-asc. See RELEASE.md.
+
+workflows:
+  ios-testflight:
+    name: iOS TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: twenty-one-asc
+    environment:
+      xcode: latest
+      node: 22
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: app.twentyone.nights
+    scripts:
+      - name: Install dependencies and sync the web bundle
+        script: |
+          npm ci
+          npm run sync
+      - name: Apply the provisioning profile Codemagic fetched
+        script: xcode-project use-profiles
+      - name: Build the IPA
+        script: |
+          xcode-project build-ipa \
+            --workspace "$CM_BUILD_DIR/ios/App/App.xcworkspace" \
+            --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
+  android-internal:
+    name: Android internal track
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      java: 21
+      node: 22
+      groups:
+        - play_signing
+    scripts:
+      - name: Install dependencies and sync the web bundle
+        script: |
+          npm ci
+          npm run sync
+      - name: Build the release bundle
+        script: |
+          cd android
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $PLAY_SERVICE_ACCOUNT
+        track: internal
+        submit_as_draft: true
