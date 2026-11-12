@@ -1,0 +1,68 @@
+# Lanes for a Mac or a macOS CI runner. Codemagic is the path that does not
+# need you to own a Mac; this file is what the GitHub Actions workflow calls.
+# Working directory is the repository root.
+#
+# ios beta:
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64, APPLE_TEAM_ID
+# android internal, plus ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD,
+# ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD (read by android/app/build.gradle):
+#   PLAY_JSON_KEY_PATH
+
+default_platform(:ios)
+
+def asc_api_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_content: ENV.fetch("ASC_KEY_P8_BASE64"),
+    is_key_content_base64: true
+  )
+end
+
+platform :ios do
+  desc "Create signing assets if needed, archive, upload to TestFlight"
+  lane :beta do
+    api_key = asc_api_key
+    sh("npm ci && npm run sync")
+    cert(api_key: api_key, development: false)
+    sigh(
+      api_key: api_key,
+      app_identifier: "app.twentyone.nights",
+      force: false
+    )
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/App/App.xcodeproj",
+      team_id: ENV.fetch("APPLE_TEAM_ID"),
+      bundle_identifier: "app.twentyone.nights",
+      code_sign_identity: "Apple Distribution",
+      profile_name: lane_context[SharedValues::SIGH_NAME]
+    )
+    build_app(
+      workspace: "ios/App/App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store"
+    )
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
+
+platform :android do
+  desc "Build a release AAB and upload it to the Play internal track as a draft"
+  lane :internal do
+    sh("npm ci && npm run sync")
+    gradle(task: "bundleRelease", project_dir: "android")
+    upload_to_play_store(
+      track: "internal",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      release_status: "draft"
+    )
+  end
+end

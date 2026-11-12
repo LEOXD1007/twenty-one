@@ -1,0 +1,38 @@
+{
+  "appId": "app.twentyone.nights",
+  "appName": "Twenty-One",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#06070b"
+  },
+  "ios": {
+    "backgroundColor": "#06070b",
+    "contentInset": "never",
+    "preferredContentMode": "mobile"
+  },
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "capacitor"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "launchAutoHide": true,
+      "backgroundColor": "#06070b",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "StatusBar": {
+      "overlaysWebView": true,
+      "style": "DARK",
+      "backgroundColor": "#06070b"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#e9c27b",
+      "presentationOptions": ["badge", "sound", "banner", "list"]
+    }
+  }
+}
